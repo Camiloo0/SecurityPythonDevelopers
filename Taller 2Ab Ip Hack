@@ -1,0 +1,15 @@
+import requests, re, json
+
+
+def extractFromRegularExpresion(regex, file):
+    if file:
+        data = ""
+        with open(file, "rt") as f:
+            data = f.read()
+        return re.findall(regex,data)
+    return None
+    
+regex = r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+resultado = extractFromRegularExpresion(regex, "http\\access_log")
+
+print(resultado)
