@@ -1,0 +1,78 @@
+# Este programa encuentra la ruta más corta entre dos nodos usando el algoritmo de Dijkstra.
+# El usuario debe ingresar el nodo de inicio y el nodo de destino (por ejemplo: A, B, C, etc.).
+# Al presionar "Buscar ruta", se mostrará el camino más corto y su costo total.
+# El grafo ya está definido en el código con conexiones y pesos entre los nodos.
+
+import tkinter as tk
+from tkinter import messagebox
+
+# Grafo predefinido
+grafo = {
+    'A': {'B': 2, 'C': 4},
+    'B': {'A': 2, 'C': 1, 'D': 7},
+    'C': {'A': 4, 'B': 1, 'D': 3, 'E': 5},
+    'D': {'B': 7, 'C': 3, 'E': 2, 'Z': 6},
+    'E': {'C': 5, 'D': 2, 'Z': 1},
+    'Z': {'D': 6, 'E': 1}
+}
+
+# Algoritmo de Dijkstra
+def dijkstra(grafo, inicio, destino):
+    visitados = set()
+    distancias = {nodo: float('inf') for nodo in grafo}
+    anterior = {nodo: None for nodo in grafo}
+    distancias[inicio] = 0
+
+    while len(visitados) < len(grafo):
+        nodo_actual = None
+        for nodo in grafo:
+            if nodo not in visitados and (nodo_actual is None or distancias[nodo] < distancias[nodo_actual]):
+                nodo_actual = nodo
+
+        for vecino, peso in grafo[nodo_actual].items():
+            nueva_distancia = distancias[nodo_actual] + peso
+            if nueva_distancia < distancias[vecino]:
+                distancias[vecino] = nueva_distancia
+                anterior[vecino] = nodo_actual
+
+        visitados.add(nodo_actual)
+
+    camino = []
+    actual = destino
+    while actual is not None:
+        camino.insert(0, actual)
+        actual = anterior[actual]
+
+    return camino, distancias[destino]
+
+# Función que se ejecuta al presionar el botón
+def buscar_ruta():
+    inicio = entrada_inicio.get().upper()
+    destino = entrada_destino.get().upper()
+
+    if inicio not in grafo or destino not in grafo:
+        messagebox.showerror("Error", "Nodo inválido.")
+        return
+
+    camino, costo = dijkstra(grafo, inicio, destino)
+    resultado.config(text=f"Ruta: {' -> '.join(camino)}\nCosto total: {costo}")
+
+# Interfaz hecha con Tkinter
+ventana = tk.Tk()
+ventana.title("Buscador de Ruta Más Corta - Dijkstra")
+
+tk.Label(ventana, text="Nodo de inicio:").grid(row=0, column=0, padx=10, pady=10)
+entrada_inicio = tk.Entry(ventana)
+entrada_inicio.grid(row=0, column=1)
+
+tk.Label(ventana, text="Nodo de destino:").grid(row=1, column=0, padx=10, pady=10)
+entrada_destino = tk.Entry(ventana)
+entrada_destino.grid(row=1, column=1)
+
+boton_buscar = tk.Button(ventana, text="Buscar ruta", command=buscar_ruta)
+boton_buscar.grid(row=2, column=0, columnspan=2, pady=10)
+
+resultado = tk.Label(ventana, text="", font=("Arial", 12), justify="left")
+resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+
+ventana.mainloop()
